@@ -36,42 +36,51 @@ app.get("/", (request, response, next) => {
 });
 
 // register endpoint
-app.post("/register", (request, response) => {
-  // hash the password
-  bcrypt
-    .hash(request.body.password, 10)
-    .then((hashedPassword) => {
-      // create a new user instance and collect the data
-      const user = new User({
-        email: request.body.email,
-        password: hashedPassword,
-      });
+// app.post("/register", (request, response) => {
+//   // hash the password
+//   bcrypt
+//     .hash(request.body.password, 10)
+//     .then((hashedPassword) => {
+//       // create a new user instance and collect the data
+//       const user = new User({
+//         email: request.body.email,
+//         password: hashedPassword,
+//       });
 
-      // save the new user
-      user
-        .save()
-        // return success if the new user is added to the database successfully
-        .then((result) => {
-          response.status(201).send({
-            message: "User Created Successfully",
-            result,
-          });
-        })
-        // catch erroe if the new user wasn't added successfully to the database
-        .catch((error) => {
-          response.status(500).send({
-            message: "Error creating user",
-            error,
-          });
-        });
-    })
-    // catch error if the password hash isn't successful
-    .catch((e) => {
-      response.status(500).send({
-        message: "Password was not hashed successfully",
-        e,
-      });
-    });
+//       // save the new user
+//       user
+//         .save()
+//         // return success if the new user is added to the database successfully
+//         .then((result) => {
+//           response.status(201).send({
+//             message: "User Created Successfully",
+//             result,
+//           });
+//         })
+//         // catch erroe if the new user wasn't added successfully to the database
+//         .catch((error) => {
+//           response.status(500).send({
+//             message: "Error creating user",
+//             error,
+//           });
+//         });
+//     })
+//     // catch error if the password hash isn't successful
+//     .catch((e) => {
+//       response.status(500).send({
+//         message: "Password was not hashed successfully",
+//         e,
+//       });
+//     });
+// });
+app.post("/register", async function (req, res) {
+  try {
+    const newuser = new User(req.body);
+    await newuser.save();
+    res.send('User Registered Successfully')
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 // login endpoint
@@ -130,14 +139,6 @@ app.post("/login", (request, response) => {
     });
 });
 
-// free endpoint
-app.get("/free-endpoint", (request, response) => {
-  response.json({ message: "You are free to access me anytime" });
-});
 
-// authentication endpoint
-app.get("/auth-endpoint", auth, (request, response) => {
-  response.send({ message: "You are authorized to access me" });
-});
 
 module.exports = app;
